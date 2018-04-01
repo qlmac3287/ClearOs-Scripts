@@ -1,0 +1,5 @@
+  - name: install tests
+    yum: pkg={{item}} state=installed
+    with_items:
+     - lynx
+     - rsync
