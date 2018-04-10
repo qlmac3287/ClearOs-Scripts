@@ -69,7 +69,7 @@ expect "password: "
 send "${sshpasswd}\n" 
 expect "$ " { send "if bash -c \'\[\[ -d ~/.ssh \]\]\'; then mkdir -p ~/.ssh && chmod 0700 ~/.ssh; fi\r" }
 expect "$ " { send "if bash -c \'\[\[ -f ~/.ssh/authorized_keys \]\]\'; then touch ~/.ssh/authorized_keys && chmod 0600 ~/.ssh/authorized_keys; fi\r" }
-expect "$ " { send "grep ${publickeytitle} ~/.ssh/authorized_keys && echo Key already exists || echo ${publickeytitle} >> ~/.ssh/authorized_keys\r" }
+expect "$ " { send "grep ${publickeytitle} ~/.ssh/authorized_keys && echo Key already exists || echo ${publickey} >> ~/.ssh/authorized_keys\r" }
 expect "$ " { send "exit\r" }
 EOD
 $cmd_echo
@@ -83,7 +83,7 @@ expect "password: "
 send "${sshpasswd}\n" 
 expect "$ " { send "if sudo bash -c \'\[\[ -d ~/.ssh \]\]\'; then sudo mkdir -p ~/.ssh && sudo chmod 0700 ~/.ssh; fi\r" }
 expect "$ " { send "if sudo bash -c \'\[\[ -f ~/.ssh/authorized_keys \]\]\'; then sudo touch ~/.ssh/authorized_keys && sudo chmod 0600 ~/.ssh/authorized_keys; fi\r" }
-expect "$ " { send "sudo grep ${publickeytitle} ~/.ssh/authorized_keys && sudo echo Key already exists || sudo echo ${publickeytitle} >> ~/.ssh/authorized_keys\r" }
+expect "$ " { send "sudo grep ${publickeytitle} ~/.ssh/authorized_keys && sudo echo Key already exists || sudo echo ${publickey} >> ~/.ssh/authorized_keys\r" }
 expect "$ " { send "exit\r" }
 EOD
 $cmd_echo
