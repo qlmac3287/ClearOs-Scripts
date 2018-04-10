@@ -62,7 +62,21 @@ publickey=$(grep ${publickeytitle}$ $HOME/.ssh/authorized_keys)
 if [ -z "${publickey}" ]; then available_keys && exit 1; fi
 
 ## EXPECT EXECUTION ##
-#  Execute on remote server (don't use local paths)
+#  Execute on remote server non-privileged user
+$cmd_expect <<EOD
+spawn ssh ${sshuser}@${sshhost}
+expect "password: "
+send "${sshpasswd}\n" 
+expect "$ " { send "if bash -c \'\[\[ -d ~/.ssh \]\]\'; then mkdir -p ~/.ssh && chmod 0700 ~/.ssh; fi\r" }
+expect "$ " { send "if bash -c \'\[\[ -f ~/.ssh/authorized_keys \]\]\'; then touch ~/.ssh/authorized_keys && chmod 0600 ~/.ssh/authorized_keys; fi\r" }
+expect "$ " { send "grep ${publickeytitle} ~/.ssh/authorized_keys && echo Key already exists || echo ${publickeytitle} >> ~/.ssh/authorized_keys\r" }
+expect "$ " { send "exit\r" }
+EOD
+$cmd_echo
+exit 0
+
+## EXPECT EXECUTION ##
+#  Execute on remote server change root
 $cmd_expect <<EOD
 spawn ssh ${sshuser}@${sshhost}
 expect "password: "
