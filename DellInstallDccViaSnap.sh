@@ -13,5 +13,9 @@
 # Command Variables for Crontab support
 cmd_which=/usr/bin/which
 cmd_snap=/usr/bin/snap
+cmd_egrep=/bin/egrep
+cmd_echo=/bin/echo
 
 #  Install 'dcc' if missing or path is wrong
+${cmd_snap} list | ${cmd_egrep} "^dcc\s+[0-9\.]+\s+[0-9\.]+\s+dell-inc\s+-$" && ${cmd_echo} Package already installed || sudo ${cmd_snap} install dcc
+${cmd_snap} list | ${cmd_egrep} "^dcc\s+[0-9\.]+\s+[0-9\.]+\s+dell-inc\s+-$" && ${cmd_echo} Script succeeded || ${cmd_echo} Installation failed
