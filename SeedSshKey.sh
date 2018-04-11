@@ -64,7 +64,7 @@ if [ -z "${publickey}" ]; then available_keys && exit 1; fi
 ## EXPECT EXECUTION ##
 #  Execute on remote server non-privileged user
 $cmd_expect <<EOD
-spawn ssh ${sshuser}@${sshhost}
+spawn ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${sshuser}@${sshhost}
 expect "password: "
 send "${sshpasswd}\n" 
 expect "$ " { send "if bash -c \'\[\[ -d ~/.ssh \]\]\'; then mkdir -p ~/.ssh && chmod 0700 ~/.ssh; fi\r" }
@@ -78,7 +78,7 @@ exit 0
 ## EXPECT EXECUTION ##
 #  Execute on remote server change root
 $cmd_expect <<EOD
-spawn ssh ${sshuser}@${sshhost}
+spawn ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${sshuser}@${sshhost}
 expect "password: "
 send "${sshpasswd}\n" 
 expect "$ " { send "if sudo bash -c \'\[\[ -d ~/.ssh \]\]\'; then sudo mkdir -p ~/.ssh && sudo chmod 0700 ~/.ssh; fi\r" }
