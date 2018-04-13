@@ -75,16 +75,3 @@ EOD
 $cmd_echo
 exit 0
 
-## EXPECT EXECUTION ##
-#  Execute on remote server change root
-$cmd_expect <<EOD
-spawn ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${sshuser}@${sshhost}
-expect "password: "
-send "${sshpasswd}\n" 
-expect "$ " { send "if sudo bash -c \'\[\[ -d ~/.ssh \]\]\'; then sudo mkdir -p ~/.ssh && sudo chmod 0700 ~/.ssh; fi\r" }
-expect "$ " { send "if sudo bash -c \'\[\[ -f ~/.ssh/authorized_keys \]\]\'; then sudo touch ~/.ssh/authorized_keys && sudo chmod 0600 ~/.ssh/authorized_keys; fi\r" }
-expect "$ " { send "sudo grep ${publickeytitle} ~/.ssh/authorized_keys && sudo echo Key already exists || sudo echo ${publickey} >> ~/.ssh/authorized_keys\r" }
-expect "$ " { send "exit\r" }
-EOD
-$cmd_echo
-exit 0
