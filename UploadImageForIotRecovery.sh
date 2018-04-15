@@ -39,11 +39,11 @@ cmd_sed=/usr/bin/sed
 cmd_awk=/usr/bin/awk
 cmd_cat=/usr/bin/cat
 #  Install 'sed' if missing or path is wrong
-$cmd_which sed > /dev/null 2>&1 && true || sudo yum -y install sed > /dev/null 2>&1
-$cmd_which sed > /dev/null 2>&1 && true || $cmd_echo Failed to find or install \"sed\" program. Please install and try again.
+#$cmd_which sed > /dev/null 2>&1 && true || sudo yum -y install sed > /dev/null 2>&1
+#$cmd_which sed > /dev/null 2>&1 && true || $cmd_echo Failed to find or install \"sed\" program. Please install and try again.
 #  Install 'gawk' if missing or path is wrong
-$cmd_which awk > /dev/null 2>&1 && true || sudo yum -y gawk expect > /dev/null 2>&1
-$cmd_which awk > /dev/null 2>&1 && true || $cmd_echo Failed to find or install \"awk\" program. Please install gawk and try again.
+#$cmd_which awk > /dev/null 2>&1 && true || sudo yum -y gawk expect > /dev/null 2>&1
+#$cmd_which awk > /dev/null 2>&1 && true || $cmd_echo Failed to find or install \"awk\" program. Please install gawk and try again.
 if ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -oBatchMode=yes ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} ls /${homedir}/${sshuser}/${imagename}/efi; then ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -oBatchMode=yes ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} rm -rf /${homedir}/${sshuser}/${imagename}/*; echo directory exists and was purged; else ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -oBatchMode=yes ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} mkdir -p /${homedir}/${sshuser}/${imagename}; echo directory created; fi
 
 ## FUNCTIONS ##
