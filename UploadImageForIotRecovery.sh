@@ -28,6 +28,8 @@ defimagessourcedir=/home/files/assets/images
 #  The name of the image as defined by the directory. This folder must have the efi directory of the 
 #  recovery image
 defimagename=300x-recovery
+#  The partition name of the recovery partition
+defrecoverypartition=mmcblk0p1
 
 ## LOCATE PATHS AND PROGRAMS USED ##
 # Command Variables for Crontab support
@@ -36,13 +38,13 @@ cmd_echo=/usr/bin/echo
 cmd_sed=/usr/bin/sed
 cmd_awk=/usr/bin/awk
 cmd_cat=/usr/bin/cat
-
 #  Install 'sed' if missing or path is wrong
 $cmd_which sed > /dev/null 2>&1 && true || sudo yum -y install sed > /dev/null 2>&1
 $cmd_which sed > /dev/null 2>&1 && true || $cmd_echo Failed to find or install \"sed\" program. Please install and try again.
 #  Install 'gawk' if missing or path is wrong
 $cmd_which awk > /dev/null 2>&1 && true || sudo yum -y gawk expect > /dev/null 2>&1
 $cmd_which awk > /dev/null 2>&1 && true || $cmd_echo Failed to find or install \"awk\" program. Please install gawk and try again.
+if ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -oBatchMode=yes ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} ls /${homedir}/${sshuser}/${imagename}/efi; then ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -oBatchMode=yes ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} rm -rf /${homedir}/${sshuser}/${imagename}/*; echo directory exists and was purged; else ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -oBatchMode=yes ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} mkdir -p /${homedir}/${sshuser}/${imagename}; echo directory created; fi
 
 ## FUNCTIONS ##
 #Help Function
@@ -62,55 +64,63 @@ if [ -z ${6+x} ]; then sshdestinationport=${defsshdestinationport}; else sshdest
 if [ -z ${7+x} ]; then sshfileuser=${defsshfileuser}; else sshfileuser=${7}; fi
 if [ -z ${8+x} ]; then imagessourcedir=${defimagessourcedir}; else imagessourcedir=${8}; fi
 if [ -z ${9+x} ]; then imagename=${defimagename}; else imagename=${9}; fi
-
+if [ -z ${10+x} ]; then recoverypartition=${defrecoverypartition}; else recoverypartition=${10}; fi
 if [ ${sshuser} = "root" ]; then homedir=""; else homedir="home"; fi
 
 ## VARIABLE VALIDATION ##
 #  Validate Source User
 echo Validating source user
-if [ ! -d ${imagessourcedir} ]; then exit 1
+if [ ! -d ${imagessourcedir} ]; then echo Source directory does not exist; exit 1; fi
 #  Validate source directory
 echo validating source directory
-if [ ! -d ${imagessourcedir} ]; then exit 1
+if [ ! -d ${imagessourcedir} ]; then echo Source directory does not exist; exit 1; fi
 #  Validate Source Image
 echo validating source image
-if [ ! -d ${imagessourcedir}/${imagename}/efi ]; then exit 1
+if [ ! -d ${imagessourcedir}/${imagename}/efi ]; then echo Source image does not exist; exit 1; fi
 
 ## PREPARATION ##
-ssh ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} if [ -d /${homedir}/${sshuser}/${imagename} ]; then rm -rf /${homedir}/${sshuser}/${imagename}/*; else mkdir -p /${homedir}/${sshuser}/${imagename}; fi || echo failed to ssh
-ssh ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} <<'ENDSSH'
-  if [[ $HOME ]]; then hostname; fi
-ENDSSH
-if ssh ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} 
+#  Example
+#ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -oBatchMode=yes -p ${sshdestinationport} ${sshuser}@${sshdestinationhost} /bin/bash << EOF
+#	echo \`hostname\` not `hostname` on $sshsourcehost
+#EOF
 
-## VALIDATION ##
+#if ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -oBatchMode=yes ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} ls /${homedir}/${sshuser}/${imagename}/efi; then 
+#    ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -oBatchMode=yes ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} rm -rf /${homedir}/${sshuser}/${imagename}/*
+#    echo directory exists and was purged
+#else
+#    ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -oBatchMode=yes ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} mkdir -p /${homedir}/${sshuser}/${imagename}
+#    echo directory created
+#fi
+
+#  Setup and purge target imaging directory
+ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -oBatchMode=yes -p ${sshdestinationport} ${sshuser}@${sshdestinationhost} /bin/bash << EOF
+	if [ ! -d /${homedir}/${sshuser}/${imagename} ]; then mkdir -p /${homedir}/${sshuser}/${imagename}; fi
+	if [ -d /${homedir}/${sshuser}/${imagename} ]; then 
+		[ "\$(ls -A /${homedir}/${sshuser}/${imagename})" ] && rm -rf /${homedir}/${sshuser}/${imagename}/* || echo "Directory is empty and ready for files"
+	fi
+EOF
 
 ## MAIN PROGRAM ##
 #  Run Program
 
-# Land the recovery image in /${homedir}/${sshuser} need routine to clean up if already exists
-[root@edgeserver1 ~]# ssh ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} mkdir /${homedir}/${sshuser}/${imagename}
-[root@edgeserver1 ~]# ssh ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} ls -la /${homedir}/${sshuser}/${imagename}
-total 8
-drwxrwxr-x 2 ${sshuser} ${sshuser} 4096 Apr 15 16:36 .
-drwxr-xr-x 7 ${sshuser} ${sshuser} 4096 Apr 15 16:36 ..
-
 # From the destination server grab the files. Should validate after copy that efi folder exists. Also, this requires trust between from the files user to the private key on the target server.
-[root@edgeserver1 ~]# ssh ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} scp -r -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -P ${sshsourceport} files@${sshsourcehost}:${imagessourcedir}/${imagename}/* /${homedir}/${sshuser}/${imagename}/
-Warning: Permanently added '[x.x.x.x]:xx' (ECDSA) to the list of known hosts.
+ssh ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} scp -r -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -P ${sshsourceport} ${sshfileuser}@${sshsourcehost}:${imagessourcedir}/${imagename}/* /${homedir}/${sshuser}/${imagename}/
+ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -oBatchMode=yes -p ${sshdestinationport} ${sshuser}@${sshdestinationhost} /bin/bash << EOF
+	if [ ! -d /${homedir}/${sshuser}/${imagename}/efi ]; then echo Image directory is invalid; exit 1; fi
+EOF
+
 
 # Run these after the data is on the destination server in the /${homedir}/${sshuser} dir
-[root@edgeserver1 ~]# ssh ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} mkdir -p /mnt/1
-[root@edgeserver1 ~]# ssh ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} sudo mount /dev/mmcblk0p1 /mnt/1
-# Validate the recovery_partition through the mount and the existance of an efi folder. If efi doesn't exist...it is not a recovery part
-[root@edgeserver1 ~]# ssh ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} sudo ls /mnt/1
-
-# Destroying the data on the recovery partition should happen just before the copy of the data from /${homedir}/${sshuser}
-[root@edgeserver1 ~]# ssh ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} sudo rm -rf /mnt/1/*
-[root@edgeserver1 ~]# ssh ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} sudo ls /mnt/1
-
-# Copy the image to the mount location
-[root@edgeserver1 ~]# ssh ${sshuser}@${sshdestinationhost} -p ${sshdestinationport} sudo cp -a /${homedir}/${sshuser}/${imagename}/* /mnt/1/
-
-## CLEANUP ##
-
+ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -oBatchMode=yes -p ${sshdestinationport} ${sshuser}@${sshdestinationhost} /bin/bash << EOF
+	sudo mkdir -p /mnt/${imagename} && echo mkdir /mnt/${imagename} suceeded
+	sudo mount | grep ${imagename} && true || sudo mount /dev/${recoverypartition} /mnt/${imagename} 
+	sudo mount | grep ${imagename} && echo Device mounted || exit 1 
+	[ "\$(ls -A /mnt/${imagename})" ] && sudo rm -rf /mnt/${imagename}/* || echo Parition empty as expected or command failed.
+	[ "\$(ls -A /mnt/${imagename})" ] && exit 1 || echo Partition ready for transfer.
+	sudo cp -a /${homedir}/${sshuser}/${imagename}/* /mnt/${imagename}/ && echo Please Note - Ignore preservation of permissions issues. These issue are expected on FAT32 UEFI volumes.
+	[ "\$(ls -A /mnt/${imagename}/efi)" ] && echo Copy completed || exit 1
+	sudo umount /mnt/${imagename} && echo Recovery Partition Unmounted || exit 1
+	sudo rmdir /mnt/${imagename} && echo Cleanup temporary mount directory concluded || exit 1
+EOF
+	
+exit 0
