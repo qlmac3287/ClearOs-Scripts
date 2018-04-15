@@ -19,7 +19,7 @@ cmd_echo=/usr/bin/echo
 ## FUNCTIONS ##
 #Help Function
 help_text () {
-    $cmd_echo "AddFilesUserAccessKey.sh [ IPaddress | Hostname ] (OPTIONAL: [ username ] [ port ]\")"
+    $cmd_echo "AddFilesUserAccessKey.sh [ IPaddress | Hostname ] (OPTIONAL: [ username ] [ port ])"
 }
 
 ## VARIABLES ##
