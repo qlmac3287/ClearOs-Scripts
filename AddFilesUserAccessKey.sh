@@ -33,9 +33,6 @@ if [ -z ${3+x} ]; then sshport=22; else sshport=${3}; fi
 
 ## MAIN PROGRAM ##
 #  Run Program
-su files || exit 1
-cd || exit 1
-ls .ssh/id_rsa || $cmd_ssh-keygen -t rsa -f .ssh/id_rsa -N ''
-exit
+ls /home/files/.ssh/id_rsa || sudo -i -u files printf '\n' | $cmd_ssh-keygen -f /home/files/.ssh/id_rsa -N ''
 $cmd_scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -P ${sshport} /home/files/.ssh/id_rsa* ${sshuser}@${sshhost}:~/.ssh/ || exit 1
 exit 0
