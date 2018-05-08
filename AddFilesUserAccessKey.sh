@@ -12,7 +12,7 @@
 ## LOCATE PATHS AND PROGRAMS USED ##
 # Command Variables for Crontab support
 cmd_which=/usr/bin/which
-cmd_ssh-keygen=/usr/bin/ssh-keygen
+cmd_sshkeygen=/usr/bin/ssh-keygen
 cmd_scp=/usr/bin/scp
 cmd_echo=/usr/bin/echo
 
@@ -33,6 +33,6 @@ if [ -z ${3+x} ]; then sshport=22; else sshport=${3}; fi
 
 ## MAIN PROGRAM ##
 #  Run Program
-ls /home/files/.ssh/id_rsa || sudo -i -u files printf '\n' | $cmd_ssh-keygen -f /home/files/.ssh/id_rsa -N ''
+ls /home/files/.ssh/id_rsa || sudo -i -u files printf '\n' | $cmd_sshkeygen -f /home/files/.ssh/id_rsa -N ''
 $cmd_scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -P ${sshport} /home/files/.ssh/id_rsa* ${sshuser}@${sshhost}:~/.ssh/ || exit 1
 exit 0
