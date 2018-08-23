@@ -49,8 +49,8 @@ keyfile="$HOME/.ssh/authorized_keys"
 if [ -z ${1+x} ]; then help_text && exit 1; else publickeytitle=${1}; fi
 if [ -z ${2+x} ]; then help_text && exit 1; else sshhost=${2}; fi
 #  Optional Parameters and Validation
-if [ -z ${3+x} ]; then sshuser=admin; else sshuser=${3}; fi
-if [ -z ${4+x} ]; then sshpasswd=admin; else sshpasswd=${4}; fi
+if [ -z ${3+x} ]; then sshuser=root; else sshuser=${3}; fi
+if [ -z ${4+x} ]; then sshpasswd="Clear05!"; else sshpasswd=${4}; fi
 if [ -z ${5+x} ]; then sshport=22; else sshport=${5}; fi
 
 ## VALIDATION ##
