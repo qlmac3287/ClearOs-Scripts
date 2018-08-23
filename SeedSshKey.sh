@@ -31,7 +31,7 @@ $cmd_which awk > /dev/null 2>&1 && true || $cmd_echo Failed to find or install \
 ## FUNCTIONS ##
 #Help Function
 help_text () {
-    $cmd_echo "SeedSshKey.sh [ KeyName | \"Key Name\" ] [ IPaddress | Hostname ] (OPTIONAL: [ username ] [ password | \"Pass Word\" ] [ port ]\")"
+    $cmd_echo "SeedSshKey.sh [ KeyName | \"qlmkey\" ] [ IPaddress | Hostname ] (OPTIONAL: [ username ] [ password | \"Pass Word\" ] [ port ]\")"
 }
 available_keys () {
     $cmd_echo
