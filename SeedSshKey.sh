@@ -31,7 +31,7 @@ $cmd_which awk > /dev/null 2>&1 && true || $cmd_echo Failed to find or install \
 ## FUNCTIONS ##
 #Help Function
 help_text () {
-    $cmd_echo "SeedSshKey.sh [ KeyName | \"qlmkey\" ] [ IPaddress | Hostname ] (OPTIONAL: [ username ] [ password | \"Pass Word\" ] [ port ]\")"
+    $cmd_echo "SeedSshKey.sh [ KeyName | \"KeyName\" ] [ IPaddress | Hostname ] (OPTIONAL: [ username ] [ password | \"Pass Word\" ] [ port ]\")"
 }
 available_keys () {
     $cmd_echo
@@ -67,10 +67,10 @@ $cmd_expect <<EOD
 spawn ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${sshuser}@${sshhost}
 expect "password: "
 send "${sshpasswd}\n" 
-expect "$ " { send "if bash -c \'\[\[ -d ~/.ssh \]\]\'; then mkdir -p ~/.ssh && chmod 0700 ~/.ssh; fi\r" }
-expect "$ " { send "if bash -c \'\[\[ -f ~/.ssh/authorized_keys \]\]\'; then touch ~/.ssh/authorized_keys && chmod 0600 ~/.ssh/authorized_keys; fi\r" }
-expect "$ " { send "grep ${publickeytitle} ~/.ssh/authorized_keys && echo Key already exists || echo ${publickey} >> ~/.ssh/authorized_keys\r" }
-expect "$ " { send "exit\r" }
+expect "# " { send "if bash -c \'\[\[ -d ~/.ssh \]\]\'; then mkdir -p ~/.ssh && chmod 0700 ~/.ssh; fi\r" }
+expect "# " { send "if bash -c \'\[\[ -f ~/.ssh/authorized_keys \]\]\'; then touch ~/.ssh/authorized_keys && chmod 0600 ~/.ssh/authorized_keys; fi\r" }
+expect "# " { send "grep ${publickeytitle} ~/.ssh/authorized_keys && echo Key already exists || echo ${publickey} >> ~/.ssh/authorized_keys\r" }
+expect "# " { send "exit\r" }
 EOD
 $cmd_echo
 exit 0
